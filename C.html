@@ -1,0 +1,816 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DR PRABOT — Marketplace (Admin v2)</title>
+  <meta name="description" content="DR PRABOT marketplace — Admin v2. Kelola Banner & Produk. Checkout via WhatsApp" />
+  <!-- Fonts + Material Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;800&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#F6F2E9; --card:#ffffff; --muted:#6F6B60; --text:#1C2618;
+      --primary:#3F7A5A; --primary-600:#2F664E; --accent:#C68958;
+      --radius:12px; --shadow:0 12px 36px rgba(20,20,20,0.06);
+      --toast-bg: rgba(30,30,30,0.88);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Arial;-webkit-font-smoothing:antialiased}
+    h1,h2,h3{font-family:'Playfair Display',serif;margin:0}
+    a{color:inherit}
+    img{max-width:100%;display:block}
+
+    /* ---------- HEADER ---------- */
+    header{
+      position:sticky;top:0;left:0;right:0;z-index:90;
+      background:linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
+      border-bottom:1px solid rgba(0,0,0,0.04);
+      padding:8px 12px; display:flex;align-items:center;gap:12px;
+    }
+    .hdr-left{display:flex;align-items:center;gap:12px}
+    .logo{width:48px;height:48px;border-radius:50%;overflow:hidden;border:2px solid rgba(0,0,0,0.04)}
+    .logo img{width:100%;height:100%;object-fit:cover;display:block}
+    .hdr-title{display:flex;flex-direction:column;line-height:1}
+    .brand{font-weight:800;font-size:16px}
+    .brand-sub{font-size:11px;color:var(--muted)}
+    .hdr-center{flex:1;display:flex;align-items:center;gap:12px;padding:0 8px}
+    .search{
+      flex:1;display:flex;align-items:center;gap:10px;padding:12px;border-radius:999px;background:var(--card);
+      border:1px solid rgba(0,0,0,0.06);font-size:15px;
+    }
+    .search input{border:0;outline:none;background:transparent;padding:6px;font-size:15px;width:100%}
+    .hdr-right{display:flex;align-items:center;gap:8px}
+    /* login button small */
+    .login-btn{
+      background:var(--primary);color:#fff;border:0;padding:8px 10px;border-radius:8px;font-weight:800;cursor:pointer;font-size:13px;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:90px;
+    }
+    .login-sub{font-size:10px;margin-top:3px;opacity:0.95;color:#fff;font-weight:700}
+
+    /* ---------- HERO / BANNER SLIDER (16:9) ---------- */
+    .hero-wrap{max-width:1200px;margin:12px auto;padding:0 12px}
+    .slider{position:relative;border-radius:14px;overflow:hidden;box-shadow:var(--shadow);background:#eee;aspect-ratio:16/9}
+    .slides{display:flex;height:100%;width:100%;transition:transform 700ms cubic-bezier(.2,.9,.2,1)}
+    .slide{flex:0 0 100%;background-size:cover;background-position:center;display:flex;align-items:flex-end;padding:22px;color:#fff}
+    .slide .text{background:linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.28));padding:12px;border-radius:8px;max-width:60%}
+    .slider-controls{position:absolute;left:12px;right:12px;bottom:12px;display:flex;align-items:center;justify-content:space-between;z-index:5}
+    .dots{display:flex;gap:8px}
+    .dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.6);cursor:pointer}
+    .dot.active{background:var(--primary)}
+    .arrow{background:rgba(0,0,0,0.35);color:white;padding:8px;border-radius:8px;cursor:pointer}
+
+    /* ---------- CATEGORIES (icons from Material Icons) ---------- */
+    .wrap{max-width:1200px;margin:12px auto;padding:0 12px}
+    .cats{display:flex;gap:10px;overflow-x:auto;padding:12px 0;margin:12px 0}
+    .cat{background:var(--card);padding:10px 12px;border-radius:999px;border:1px solid rgba(0,0,0,0.04);min-width:150px;text-align:center;cursor:pointer;font-weight:700;display:flex;gap:8px;align-items:center;justify-content:center}
+    .cat .material-icons{font-size:18px;color:var(--primary)}
+    .cat.active{background:var(--primary);color:#fff;transform:translateY(-4px);box-shadow:0 8px 24px rgba(50,80,60,0.08)}
+
+    /* ---------- PRODUCTS (2-column, images 1:1) ---------- */
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+    @media(min-width:1000px){ .grid{grid-template-columns:repeat(2,1fr)} }
+    .card{background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.04);display:flex;flex-direction:column}
+    .media{position:relative;padding-top:100%; /* 1:1 */ }
+    .media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+    .card-body{padding:12px;display:flex;flex-direction:column;gap:8px}
+    .title{font-weight:800;font-size:15px}
+    .muted{color:var(--muted);font-size:13px}
+    .attrs{font-size:12px;color:var(--muted)}
+    .price{font-weight:900;color:var(--accent)}
+    .card-actions{display:flex;gap:8px;margin-top:6px;justify-content:space-between}
+    .btn{padding:8px;border-radius:8px;border:0;cursor:pointer;font-weight:800}
+    .btn.detail{background:#fff;border:1px solid rgba(0,0,0,0.06);color:var(--text);flex:1}
+    
+    /* ✅ Perbaikan di sini: tombol "+ Keranjang" tidak lagi pakai lebar tetap */
+    .btn.addcart{
+      background:var(--primary);
+      color:#fff;
+      flex:1;                    /* <-- ubah dari flex:0 0 110px */
+      min-width:0;              /* pastikan tidak memaksa lebar */
+      text-align:center;        /* rata tengah teks */
+    }
+
+    /* ---------- Quick detail modal (image above, desc below) ---------- */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:200;padding:12px;background:rgba(0,0,0,0.32)}
+    .modal.show{display:flex}
+    .panel{background:var(--card);width:100%;max-width:820px;border-radius:12px;padding:14px;box-shadow:0 18px 48px rgba(0,0,0,0.2)}
+    .panel-media{width:100%;height:320px;border-radius:10px;overflow:hidden;background:#fafafa}
+    .panel-media img{width:100%;height:100%;object-fit:cover}
+    .panel-body{padding-top:12px}
+
+    /* ---------- Cart centered modal ---------- */
+    .cart-panel{background:var(--card);width:100%;max-width:720px;border-radius:12px;padding:16px;box-shadow:0 18px 48px rgba(0,0,0,0.2)}
+    .cart-lines{max-height:360px;overflow:auto;margin-top:8px}
+    .cart-line{display:flex;gap:10px;align-items:center;padding:8px;border-bottom:1px dashed rgba(0,0,0,0.06)}
+    .cart-line img{width:64px;height:64px;object-fit:cover;border-radius:8px}
+    .cart-actions{display:flex;gap:8px;justify-content:center;margin-top:12px}
+    .cart-actions .btn{padding:10px 14px}
+
+    /* ---------- Toast centered ---------- */
+    .toast{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);min-width:260px;max-width:90%;padding:12px 16px;background:var(--toast-bg);color:#fff;border-radius:10px;z-index:999;display:none;text-align:center}
+    .toast.show{display:block}
+
+    /* ---------- ADMIN ---------- */
+    .admin-app{display:none;min-height:100vh;padding:18px;background:var(--bg)}
+    .admin-header{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:18px}
+    .admin-header .logo-large{width:96px;height:96px;border-radius:50%;overflow:hidden;border:3px solid rgba(0,0,0,0.04)}
+    .admin-header .logo-large img{width:100%;height:100%;object-fit:cover}
+    .admin-header h2{font-size:20px}
+    .admin-header p{color:var(--muted);margin:0}
+    .admin-menu{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;justify-content:center}
+    .admin-menu button{padding:8px 12px;border-radius:10px;border:0;background:var(--card);box-shadow:0 6px 18px rgba(0,0,0,0.04);cursor:pointer;font-weight:700}
+    .admin-grid{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:980px){ .admin-grid{grid-template-columns:1fr 420px} }
+    .table{background:var(--card);padding:12px;border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,0.04);overflow:auto}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;border-bottom:1px dashed rgba(0,0,0,0.06);text-align:left}
+    th{font-weight:800}
+    .detail-card{background:var(--card);padding:12px;border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,0.04)}
+    .editor-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+
+    input,textarea,select{padding:8px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);width:100%}
+    footer{margin:26px 0;text-align:center;color:var(--muted);font-size:13px}
+    .muted-small{color:var(--muted);font-size:13px}
+  </style>
+</head>
+<body>
+
+<!-- ========== Header ========== -->
+<header>
+  <div class="hdr-left">
+    <div class="logo" title="DR PRABOT logo">
+      <img src="https://drprabot5.wordpress.com/wp-content/uploads/2025/10/fb_img_1761104700282.jpg" alt="logo">
+    </div>
+    <div class="hdr-title">
+      <div class="brand">DR PRABOT</div>
+      <div class="brand-sub">Peralatan Rumah Tangga</div>
+    </div>
+  </div>
+
+  <div class="hdr-center">
+    <div class="search" role="search">
+      <span class="material-icons" aria-hidden="true">search</span>
+      <input id="search" placeholder="Cari produk, brand, warna..." aria-label="Cari produk">
+    </div>
+  </div>
+
+  <div class="hdr-right">
+    <button id="btn-login" class="login-btn" aria-haspopup="dialog" aria-controls="modal-auth">
+      <span id="login-main-text">Login</span>
+      <span id="login-sub-text" class="login-sub">(khusus admin)</span>
+    </button>
+  </div>
+</header>
+
+<!-- ========== HERO / SLIDER ========== -->
+<div class="hero-wrap" id="hero-wrap">
+  <div class="slider" id="slider" role="region" aria-label="Banner utama">
+    <div class="slides" id="slides"></div>
+    <div class="slider-controls">
+      <div class="dots" id="slider-dots"></div>
+      <div style="display:flex;gap:8px;">
+        <button id="prev" class="arrow" aria-label="Sebelumnya">‹</button>
+        <button id="next" class="arrow" aria-label="Berikutnya">›</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MAIN CONTENT ========== -->
+<div class="wrap" id="main-wrap">
+  <div id="categories" class="cats" aria-label="Kategori"></div>
+
+  <section>
+    <h2 style="margin:6px 0">Produk</h2>
+    <div id="products" class="grid" aria-live="polite"></div>
+    <div id="no-results" style="display:none;margin-top:12px;color:var(--muted)">Tidak ada produk yang cocok.</div>
+  </section>
+
+  <footer>© 2025 DR PRABOT — Demo</footer>
+</div>
+
+<!-- ========== QUICK DETAIL MODAL ========== -->
+<div id="modal-quick" class="modal" aria-hidden="true">
+  <div class="panel" role="dialog" aria-labelledby="q-title">
+    <div class="panel-media" id="q-media"></div>
+    <div class="panel-body">
+      <h3 id="q-title"></h3>
+      <div id="q-brand" class="muted-small"></div>
+      <p id="q-desc" style="margin:8px 0"></p>
+      <div id="q-attrs" class="muted-small"></div>
+      <div style="margin-top:8px;font-weight:900" id="q-price"></div>
+      <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+        <input id="q-qty" type="number" min="1" value="1" style="width:90px">
+        <button id="q-add" class="btn addcart">🛒 Tambah</button>
+        <button id="q-close" class="btn secondary">Tutup</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== CART MODAL ========== -->
+<div id="modal-cart" class="modal" aria-hidden="true">
+  <div class="cart-panel" role="dialog" aria-labelledby="cart-title">
+    <h3 id="cart-title">Keranjang Belanja</h3>
+    <div class="cart-lines" id="cart-lines"></div>
+    <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center">
+      <div><strong>Total:</strong> <span id="cart-total">Rp0</span></div>
+    </div>
+    <div class="cart-actions">
+      <button id="btn-checkout" class="btn" title="Checkout via WhatsApp">Checkout via WhatsApp</button>
+      <button id="btn-cancel-cart" class="btn secondary">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== AUTH MODAL ========== -->
+<div id="modal-auth" class="modal" aria-hidden="true">
+  <div class="panel" role="dialog" aria-labelledby="auth-title">
+    <h3 id="auth-title">Login Admin</h3>
+    <div style="margin-top:12px;display:grid;gap:8px">
+      <input id="auth-email" placeholder="Email admin" type="email">
+      <input id="auth-pass" placeholder="Password" type="password">
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button id="auth-login" class="btn">Login</button>
+        <button id="auth-cancel" class="btn secondary">Batal</button>
+      </div>
+      <div class="muted-small">Admin default: <strong>admin@drprabot.com</strong> / <strong>admin123</strong></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== TOAST ========== -->
+<div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<!-- ========== ADMIN APP ========== -->
+<div id="admin-app" class="admin-app" aria-hidden="true">
+  <div class="admin-header">
+    <div class="logo-large">
+      <img src="https://drprabot5.wordpress.com/wp-content/uploads/2025/10/fb_img_1761104700282.jpg" alt="logo">
+    </div>
+    <h2>DR PRABOT — Admin Dashboard</h2>
+    <p class="muted-small">Kelola Banner & Produk</p>
+    <div class="admin-menu" role="tablist">
+      <button id="menu-products" data-section="products" class="active">📦 Produk</button>
+      <button id="menu-banners" data-section="banners">🖼️ Banner</button>
+      <button id="menu-back-home" data-section="home">🔙 Kembali ke Beranda</button>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:12px;align-items:center;justify-content:center;margin-bottom:12px">
+    <input id="admin-search" placeholder="Cari..." style="padding:8px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);width:220px">
+    <select id="admin-filter-cat" style="padding:8px;border-radius:8px;border:1px solid rgba(0,0,0,0.06)">
+      <option value="all">Semua Kategori</option>
+    </select>
+    <button id="admin-add" class="btn">Tambah</button>
+    <button id="admin-logout" class="btn secondary">Logout</button>
+  </div>
+
+  <div class="admin-grid">
+    <div class="table" id="admin-main-list"></div>
+    <div id="admin-right" class="detail-card">
+      <div id="admin-right-inner">Pilih item dari daftar atau klik "Tambah".</div>
+    </div>
+  </div>
+
+  <div style="margin-top:18px">
+    <h3>Pesanan</h3>
+    <div id="admin-orders" style="display:grid;gap:8px;margin-top:8px"></div>
+  </div>
+</div>
+
+<!-- ========== Floating Cart Button ========== -->
+<button id="floating-cart" title="Keranjang" style="position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:95;background:var(--primary);color:#fff;padding:12px 16px;border-radius:999px;border:0;box-shadow:0 18px 36px rgba(0,0,0,0.14);font-weight:800">🛒 Keranjang (<span id="floating-count">0</span>)</button>
+
+<script>
+/* =========================
+   DR PRABOT v4 — Finalized build
+   - Uses localStorage keys dp_v4_...
+   - WhatsApp checkout number & banners set by user
+   ========================= */
+
+const ADMIN_WHATSAPP = "6285823431349";
+const BANNER_IMAGE_URL = "https://drprabot5.wordpress.com/wp-content/uploads/2025/10/1000069924.jpg";
+
+const LS = {
+  PRODUCTS: 'dp_v4_products',
+  BANNERS: 'dp_v4_banners',
+  USERS: 'dp_v4_users',
+  ORDERS: 'dp_v4_orders',
+  SESSION: 'dp_v4_session',
+  CART: uid => `dp_v4_cart_${uid||'guest'}`
+};
+
+const defaultProducts = [
+  { id:'p1', name:'Ember Plastik 12L', brand:'Dr.Prabot', warna:'Merah', ukuran:'12L', priceEcer:29000, priceGrosir:25000, category:'Ember & Tempat Air', image:'https://via.placeholder.com/800x800/ff8a65/fff?text=Ember+12L', stock:120, desc:'Ember plastik tebal, tahan lama.'},
+  { id:'p2', name:'Keranjang Baju 40L', brand:'HomeKeep', warna:'Biru', ukuran:'40L', priceEcer:45000, priceGrosir:38000, category:'Keranjang', image:'https://via.placeholder.com/800x800/90caf9/022?text=Keranjang+40L', stock:50, desc:'Keranjang luas dan kuat.'},
+  { id:'p3', name:'Tupperware 1L', brand:'PrabotPro', warna:'Bening', ukuran:'1L', priceEcer:22000, priceGrosir:18000, category:'Tupperware & Botol', image:'https://via.placeholder.com/800x800/ffd54f/222?text=Tupperware+1L', stock:300, desc:'Tutup rapat, BPA free.'},
+  { id:'p4', name:'Rak Dapur 3 Susun', brand:'RakMax', warna:'Putih', ukuran:'3 susun', priceEcer:125000, priceGrosir:110000, category:'Rak & Penyimpanan', image:'https://via.placeholder.com/800x800/c5e1a5/032?text=Rak+3+Susun', stock:45, desc:'Rak hemat tempat.'},
+  { id:'p5', name:'Peralatan Stainless 5pc', brand:'Stenlis', warna:'Silver', ukuran:'set', priceEcer:98000, priceGrosir:85000, category:'Peralatan Dapur', image:'https://via.placeholder.com/800x800/cfd8dc/022?text=Stainless+5pc', stock:150, desc:'Set peralatan stainless.'},
+  { id:'p6', name:'Tempat Air 5L', brand:'AquaHome', warna:'Hijau', ukuran:'5L', priceEcer:35000, priceGrosir:30000, category:'Ember & Tempat Air', image:'https://via.placeholder.com/800x800/a5d6a7/022?text=Tempat+Air+5L', stock:200, desc:'Tempat air mudah dibawa.'}
+];
+
+const defaultBanners = Array.from({length:5}).map((_,i)=>({
+  id: 'b' + (i+1),
+  title: `Banner ${i+1}`,
+  subtitle: `Promo ${i+1}`,
+  image: BANNER_IMAGE_URL
+}));
+
+const defaultUsers = [{ id:'u-admin', email:'admin@drprabot.com', password:'admin123', name:'Admin', isAdmin:true }];
+
+function getLS(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } }
+function setLS(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+function uid(prefix='id'){ return prefix + Date.now() + Math.floor(Math.random()*999); }
+function fmt(n){ return 'Rp' + Number(n||0).toLocaleString('id-ID'); }
+function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g,(m)=>({'&':'&amp;','<':'<','>':'>','"':'&quot;',"'":'&#39;'}[m])); }
+
+if(!getLS(LS.PRODUCTS)) setLS(LS.PRODUCTS, defaultProducts);
+if(!getLS(LS.BANNERS)) setLS(LS.BANNERS, defaultBanners);
+if(!getLS(LS.USERS)) setLS(LS.USERS, defaultUsers);
+if(!getLS(LS.ORDERS)) setLS(LS.ORDERS, []);
+
+let PRODUCTS = getLS(LS.PRODUCTS) || [];
+let BANNERS = getLS(LS.BANNERS) || [];
+let USERS = getLS(LS.USERS) || [];
+let ORDERS = getLS(LS.ORDERS) || [];
+let SESSION = getLS(LS.SESSION) || null;
+let CART = SESSION ? (getLS(LS.CART(SESSION.userId)) || []) : (getLS(LS.CART('guest')) || []);
+
+const refs = {
+  search: document.getElementById('search'),
+  categories: document.getElementById('categories'),
+  productsEl: document.getElementById('products'),
+  slides: document.getElementById('slides'),
+  sliderDots: document.getElementById('slider-dots'),
+  prevBtn: document.getElementById('prev'),
+  nextBtn: document.getElementById('next'),
+  modalQuick: document.getElementById('modal-quick'),
+  qMedia: document.getElementById('q-media'),
+  qTitle: document.getElementById('q-title'),
+  qBrand: document.getElementById('q-brand'),
+  qDesc: document.getElementById('q-desc'),
+  qAttrs: document.getElementById('q-attrs'),
+  qPrice: document.getElementById('q-price'),
+  qQty: document.getElementById('q-qty'),
+  qAdd: document.getElementById('q-add'),
+  qClose: document.getElementById('q-close'),
+  modalCart: document.getElementById('modal-cart'),
+  cartLines: document.getElementById('cart-lines'),
+  cartTotal: document.getElementById('cart-total'),
+  btnCheckout: document.getElementById('btn-checkout'),
+  btnCancelCart: document.getElementById('btn-cancel-cart'),
+  floatingCart: document.getElementById('floating-cart'),
+  floatingCount: document.getElementById('floating-count'),
+  toast: document.getElementById('toast'),
+  modalAuth: document.getElementById('modal-auth'),
+  authEmail: document.getElementById('auth-email'),
+  authPass: document.getElementById('auth-pass'),
+  authLogin: document.getElementById('auth-login'),
+  authCancel: document.getElementById('auth-cancel'),
+  btnLogin: document.getElementById('btn-login'),
+  loginMainText: document.getElementById('login-main-text'),
+  loginSubText: document.getElementById('login-sub-text'),
+  adminApp: document.getElementById('admin-app'),
+  adminMainList: document.getElementById('admin-main-list'),
+  adminRight: document.getElementById('admin-right'),
+  adminAdd: document.getElementById('admin-add'),
+  adminSearch: document.getElementById('admin-search'),
+  adminFilterCat: document.getElementById('admin-filter-cat'),
+  adminMenuProducts: document.getElementById('menu-products'),
+  adminMenuBanners: document.getElementById('menu-banners'),
+  adminMenuBack: document.getElementById('menu-back-home'),
+  adminLogout: document.getElementById('admin-logout'),
+  adminOrders: document.getElementById('admin-orders')
+};
+
+const CATEGORIES = [
+  { key: 'Ember & Tempat Air', icon: 'water_drop' },
+  { key: 'Rak & Penyimpanan', icon: 'inventory' },
+  { key: 'Keranjang', icon: 'shopping_basket' },
+  { key: 'Tupperware & Botol', icon: 'local_drink' },
+  { key: 'Peralatan Dapur', icon: 'restaurant' },
+  { key: 'Stetlis Still', icon: 'cleaning_services' }
+];
+
+let toastTimer = null;
+function showToast(title, msg='', type='info'){
+  const t = refs.toast;
+  t.innerHTML = `<strong style="display:block;margin-bottom:6px">${escapeHtml(title)}</strong><div style="font-size:13px">${escapeHtml(msg)}</div>`;
+  if(type==='success') t.style.background = 'linear-gradient(90deg,var(--primary),var(--primary-600))';
+  else if(type==='error') t.style.background = 'linear-gradient(90deg,#d9534f,#c43f35)';
+  else t.style.background = 'var(--toast-bg)';
+  t.classList.add('show'); t.style.display = 'block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ t.classList.remove('show'); t.style.display='none'; }, 3000);
+}
+
+let currentSlide = 0; let slideInterval = null; const SLIDE_TIME = 4000;
+function buildSlider(){
+  BANNERS = getLS(LS.BANNERS) || [];
+  refs.slides.innerHTML = '';
+  refs.sliderDots.innerHTML = '';
+  const slides = BANNERS.slice(0,5);
+  slides.forEach((b,i)=>{
+    const div = document.createElement('div'); div.className='slide'; div.style.backgroundImage = `url('${b.image}')`;
+    div.innerHTML = `<div class="text"><div style="font-weight:900;font-size:18px">${escapeHtml(b.title)}</div><div style="margin-top:6px">${escapeHtml(b.subtitle||'')}</div></div>`;
+    refs.slides.appendChild(div);
+    const dot = document.createElement('div'); dot.className = 'dot' + (i===0?' active':''); dot.addEventListener('click', ()=> goToSlide(i));
+    refs.sliderDots.appendChild(dot);
+  });
+  updateSlider();
+  resetSlideAuto();
+}
+
+function updateSlider(){ refs.slides.style.transform = `translateX(-${currentSlide*100}%)`; Array.from(refs.sliderDots.children).forEach((d,i)=> d.classList.toggle('active', i===currentSlide)); }
+function nextSlide(){ currentSlide = (currentSlide + 1) % Math.max(1, BANNERS.length); updateSlider(); }
+function prevSlideFn(){ currentSlide = (currentSlide - 1 + Math.max(1,BANNERS.length)) % Math.max(1,BANNERS.length); updateSlider(); }
+function goToSlide(i){ currentSlide = i % Math.max(1,BANNERS.length); updateSlider(); resetSlideAuto(); }
+function startSlideAuto(){ stopSlideAuto(); slideInterval = setInterval(()=> nextSlide(), SLIDE_TIME); }
+function stopSlideAuto(){ if(slideInterval){ clearInterval(slideInterval); slideInterval = null; } }
+function resetSlideAuto(){ stopSlideAuto(); startSlideAuto(); }
+refs.prevBtn.addEventListener('click', ()=>{ prevSlideFn(); resetSlideAuto(); });
+refs.nextBtn.addEventListener('click', ()=>{ nextSlide(); resetSlideAuto(); });
+
+let ACTIVE_CAT = 'Semua';
+let SEARCH_Q = '';
+function renderCategories(){
+  refs.categories.innerHTML = '';
+  const all = document.createElement('div'); all.className = 'cat' + (ACTIVE_CAT==='Semua'?' active':''); all.innerHTML = `<span class="material-icons">apps</span><span>Semua</span>`; all.addEventListener('click', ()=>{ ACTIVE_CAT='Semua'; renderCategories(); applyFilters(); });
+  refs.categories.appendChild(all);
+  CATEGORIES.forEach(c=>{
+    const el = document.createElement('div'); el.className = 'cat' + (ACTIVE_CAT===c.key?' active':'');
+    el.innerHTML = `<span class="material-icons">${c.icon}</span><span>${c.key}</span>`;
+    el.addEventListener('click', ()=>{ ACTIVE_CAT = c.key; renderCategories(); applyFilters(); });
+    refs.categories.appendChild(el);
+  });
+  if(refs.adminFilterCat){
+    refs.adminFilterCat.innerHTML = '<option value="all">Semua Kategori</option>' + CATEGORIES.map(x=>`<option value="${escapeHtml(x.key)}">${escapeHtml(x.key)}</option>`).join('');
+  }
+}
+function renderProducts(list){
+  refs.productsEl.innerHTML = '';
+  if(!list.length){ document.getElementById('no-results').style.display = 'block'; return; } else document.getElementById('no-results').style.display = 'none';
+  list.forEach(p=>{
+    const card = document.createElement('div'); card.className = 'card'; card.dataset.id = p.id;
+    card.innerHTML = `
+      <div class="media"><img src="${p.image}" alt="${escapeHtml(p.name)}"></div>
+      <div class="card-body">
+        <div><div class="title">${escapeHtml(p.name)}</div><div class="muted">${escapeHtml(p.brand)}</div></div>
+        <div class="attrs">🎨 ${escapeHtml(p.warna)} • 📏 ${escapeHtml(p.ukuran)}</div>
+        <div style="flex:1"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><div class="price">${fmt(p.priceEcer)}</div>${p.priceGrosir?`<div class="muted">Grosir: ${fmt(p.priceGrosir)}</div>`:''}</div>
+        </div>
+        <div class="card-actions">
+          <button class="btn detail" data-id="${p.id}">Detail</button>
+          <button class="btn addcart" data-id="${p.id}">+ Keranjang</button>
+        </div>
+      </div>
+    `;
+    card.querySelector('.detail').addEventListener('click', ()=> openQuick(p));
+    card.querySelector('.addcart').addEventListener('click', ()=> addToCart(p.id,1));
+    refs.productsEl.appendChild(card);
+  });
+}
+
+function applyFilters(){
+  PRODUCTS = getLS(LS.PRODUCTS) || [];
+  const q = SEARCH_Q.trim().toLowerCase();
+  const out = PRODUCTS.filter(p=>{
+    const matchCat = (ACTIVE_CAT === 'Semua') || (p.category === ACTIVE_CAT);
+    const matchQ = !q || (p.name || '').toLowerCase().includes(q) || (p.brand||'').toLowerCase().includes(q) || (p.warna||'').toLowerCase().includes(q);
+    return matchCat && matchQ;
+  });
+  renderProducts(out);
+}
+refs.search.addEventListener('input', (e)=>{ SEARCH_Q = e.target.value; clearTimeout(window._fs); window._fs = setTimeout(applyFilters, 180); });
+
+let CURRENT_Q = null;
+function openQuick(p){
+  CURRENT_Q = p;
+  refs.qMedia.innerHTML = `<img src="${p.image}" alt="${escapeHtml(p.name)}">`;
+  refs.qTitle.textContent = p.name;
+  refs.qBrand.textContent = `${p.brand} • ${p.category}`;
+  refs.qDesc.textContent = p.desc || '';
+  refs.qAttrs.textContent = `🎨 ${p.warna} • 📏 ${p.ukuran} • Stok: ${p.stock||0}`;
+  refs.qPrice.textContent = fmt(p.priceEcer) + (p.priceGrosir?(' • Grosir: '+fmt(p.priceGrosir)):'');
+  refs.qQty.value = 1;
+  refs.modalQuick.classList.add('show'); refs.modalQuick.setAttribute('aria-hidden','false');
+}
+function closeQuick(){ refs.modalQuick.classList.remove('show'); refs.modalQuick.setAttribute('aria-hidden','true'); CURRENT_Q = null; }
+refs.qClose.addEventListener('click', closeQuick);
+refs.qAdd.addEventListener('click', ()=> { if(!CURRENT_Q) return; const qty = Math.max(1, Number(refs.qQty.value)||1); addToCart(CURRENT_Q.id, qty); closeQuick(); });
+
+function getCartKey(){ return SESSION ? LS.CART(SESSION.userId) : LS.CART('guest'); }
+function saveCart(){ localStorage.setItem(getCartKey(), JSON.stringify(CART)); updateFloating(); }
+function addToCart(pid, qty=1){
+  const p = (getLS(LS.PRODUCTS) || []).find(x=>x.id===pid);
+  if(!p){ showToast('Error','Produk tidak ditemukan','error'); return; }
+  const ex = CART.find(i=>i.productId===pid);
+  if(ex) ex.quantity = Math.min(9999, ex.quantity + qty); else CART.push({ productId: pid, quantity: qty });
+  saveCart();
+  showToast('Sukses','Produk ditambahkan ke keranjang','success');
+}
+function computeCart(){
+  let subtotal = 0;
+  const lines = CART.map(it=>{
+    const p = (getLS(LS.PRODUCTS) || []).find(x=>x.id===it.productId) || {name:'-', priceEcer:0, priceGrosir:0};
+    const unit = (it.quantity >= 10 && p.priceGrosir) ? p.priceGrosir : p.priceEcer;
+    const line = Number(unit) * Number(it.quantity);
+    subtotal += line;
+    return { productId: it.productId, name: p.name, qty: it.quantity, unit, line };
+  });
+  const total = subtotal;
+  return { lines, subtotal, total };
+}
+function renderCart(){
+  const { lines, subtotal, total } = computeCart();
+  refs.cartLines.innerHTML = '';
+  if(!lines.length){ refs.cartLines.innerHTML = '<div class="muted">Keranjang kosong</div>'; }
+  else{
+    lines.forEach(l=>{
+      const row = document.createElement('div'); row.className='cart-line';
+      row.innerHTML = `<img src="${(PRODUCTS.find(p=>p.id===l.productId)||{image:''}).image}" alt="${escapeHtml(l.name)}">
+        <div style="flex:1"><div style="font-weight:800">${escapeHtml(l.name)}</div><div class="muted">${l.qty} × ${fmt(l.unit)}</div></div>
+        <div style="text-align:right"><div style="font-weight:900">${fmt(l.line)}</div>
+         <div style="display:flex;gap:6px;justify-content:flex-end;margin-top:6px">
+           <button class="btn secondary dec" data-id="${l.productId}">-</button>
+           <div style="width:36px;text-align:center">${l.qty}</div>
+           <button class="btn secondary inc" data-id="${l.productId}">+</button>
+         </div>
+         <button class="btn secondary remove" data-id="${l.productId}" style="margin-top:8px">Hapus</button>
+        </div>`;
+      refs.cartLines.appendChild(row);
+    });
+  }
+  refs.cartTotal.textContent = fmt(total);
+  Array.from(refs.cartLines.querySelectorAll('.dec')).forEach(b=> b.addEventListener('click', ()=> changeQty(b.dataset.id, -1)));
+  Array.from(refs.cartLines.querySelectorAll('.inc')).forEach(b=> b.addEventListener('click', ()=> changeQty(b.dataset.id, +1)));
+  Array.from(refs.cartLines.querySelectorAll('.remove')).forEach(b=> b.addEventListener('click', ()=> removeFromCart(b.dataset.id)));
+  openCart();
+}
+function openCart(){ refs.modalCart.classList.add('show'); refs.modalCart.setAttribute('aria-hidden','false'); }
+function closeCart(){ refs.modalCart.classList.remove('show'); refs.modalCart.setAttribute('aria-hidden','true'); }
+refs.btnCancelCart.addEventListener('click', ()=> closeCart());
+function changeQty(pid, delta){
+  const it = CART.find(i=>i.productId===pid);
+  if(!it) return;
+  it.quantity = Math.max(1, it.quantity + delta);
+  saveCart();
+  renderCart();
+}
+function removeFromCart(pid){
+  CART = CART.filter(i=>i.productId !== pid);
+  saveCart();
+  renderCart();
+}
+refs.floatingCart.addEventListener('click', ()=> { renderCart(); });
+
+refs.btnCheckout.addEventListener('click', ()=> {
+  const { lines, subtotal, total } = computeCart();
+  if(!lines.length){ showToast('Info','Keranjang kosong'); return; }
+  let msg = `Halo%20DR%20PRABOT%0ASaya%20ingin%20memesan:%0A`;
+  lines.forEach(l=> {
+    msg += `- ${encodeURIComponent(l.name)} x${l.qty} @ ${encodeURIComponent(fmt(l.unit))} = ${encodeURIComponent(fmt(l.line))}%0A`;
+  });
+  msg += `%0ATotal:%20${encodeURIComponent(fmt(total))}%0A%0ANama:%20%0AAlamat:%20%0ANoHP:%20%0A%0ATerima%20kasih.`;
+  const number = ADMIN_WHATSAPP.replace(/\D/g,'');
+  const href = `https://wa.me/${number}?text=${msg}`;
+  window.open(href, '_blank');
+});
+
+function updateFloating(){
+  const key = getCartKey();
+  const cartLocal = getLS(key) || CART;
+  const count = (cartLocal||[]).reduce((s,i)=>s+i.quantity,0);
+  refs.floatingCount.textContent = count;
+  localStorage.setItem(getCartKey(), JSON.stringify(CART));
+}
+
+refs.btnLogin.addEventListener('click', ()=> {
+  if(SESSION && SESSION.isAdmin){
+    enterAdmin();
+    return;
+  }
+  refs.modalAuth.classList.add('show'); refs.modalAuth.setAttribute('aria-hidden','false'); refs.authEmail.focus();
+});
+refs.authCancel.addEventListener('click', ()=> { refs.modalAuth.classList.remove('show'); refs.modalAuth.setAttribute('aria-hidden','true'); });
+refs.authLogin.addEventListener('click', ()=> {
+  const email = refs.authEmail.value.trim().toLowerCase(); const pass = refs.authPass.value;
+  if(!email || !pass){ showToast('Error','Isi email & password','error'); return; }
+  USERS = getLS(LS.USERS) || [];
+  const u = USERS.find(x=>x.email===email && x.password===pass && x.isAdmin);
+  if(!u){ showToast('Gagal','Email/password admin salah','error'); return; }
+  const sess = { userId: u.id, email: u.email, name:u.name, isAdmin:true };
+  setLS(LS.SESSION, sess); SESSION = sess; CART = getLS(LS.CART(SESSION.userId)) || [];
+  refs.modalAuth.classList.remove('show'); refs.modalAuth.setAttribute('aria-hidden','true');
+  showToast('Sukses','Login admin berhasil','success');
+  updateLoginButton();
+  enterAdmin();
+});
+
+function updateLoginButton(){
+  if(SESSION && SESSION.isAdmin){
+    refs.loginMainText.textContent = 'ADMIN';
+    refs.loginSubText.textContent = '(admin)';
+  } else {
+    refs.loginMainText.textContent = 'Login';
+    refs.loginSubText.textContent = '(khusus admin)';
+  }
+}
+updateLoginButton();
+
+refs.adminMenuProducts.addEventListener('click', ()=> { activateAdminMenu('products'); });
+refs.adminMenuBanners.addEventListener('click', ()=> { activateAdminMenu('banners'); });
+refs.adminMenuBack.addEventListener('click', ()=> { leaveAdmin(); });
+
+function enterAdmin(){
+  document.getElementById('main-wrap').style.display = 'none';
+  document.getElementById('hero-wrap').style.display = 'none';
+  document.getElementById('admin-app').style.display = 'block';
+  document.getElementById('admin-app').setAttribute('aria-hidden','false');
+  activateAdminMenu('products');
+  updateLoginButton();
+}
+
+function leaveAdmin(){
+  localStorage.removeItem(LS.SESSION);
+  SESSION = null;
+  document.getElementById('admin-app').style.display = 'none';
+  document.getElementById('main-wrap').style.display = 'block';
+  document.getElementById('hero-wrap').style.display = 'block';
+  updateLoginButton();
+  applyFilters();
+}
+
+refs.adminLogout.addEventListener('click', ()=> { if(confirm('Logout admin?')) leaveAdmin(); });
+
+function activateAdminMenu(section){
+  refs.adminMenuProducts.classList.toggle('active', section==='products');
+  refs.adminMenuBanners.classList.toggle('active', section==='banners');
+  refs.adminRight.innerHTML = '<div id="admin-right-inner">Pilih item dari daftar atau klik "Tambah".</div>';
+  if(section==='products') buildAdminProducts();
+  else buildAdminBanners();
+}
+
+function buildAdminProducts(){
+  refreshState();
+  const q = (refs.adminSearch.value||'').trim().toLowerCase();
+  const catF = refs.adminFilterCat.value || 'all';
+  const list = (getLS(LS.PRODUCTS) || []).filter(p=>{
+    const matchQ = !q || (p.name||'').toLowerCase().includes(q) || (p.brand||'').toLowerCase().includes(q);
+    const matchCat = catF === 'all' || p.category === catF;
+    return matchQ && matchCat;
+  });
+  refs.adminMainList.innerHTML = `<table><thead><tr><th>#</th><th>Nama</th><th>Brand</th><th>Kategori</th><th>Harga</th><th>Stok</th><th>Aksi</th></tr></thead><tbody></tbody></table>`;
+  const tbody = refs.adminMainList.querySelector('tbody');
+  list.forEach((p,idx)=>{
+    const tr = document.createElement('tr'); tr.className='row-click';
+    tr.innerHTML = `<td>${idx+1}</td><td>${escapeHtml(p.name)}</td><td>${escapeHtml(p.brand)}</td><td>${escapeHtml(p.category)}</td><td>${fmt(p.priceEcer)}</td><td>${p.stock||0}</td><td><button class="btn secondary admin-edit" data-id="${p.id}">Edit</button> <button class="btn admin-delete" data-id="${p.id}">Hapus</button></td>`;
+    tr.addEventListener('click', (e)=> {
+      if(e.target && (e.target.classList.contains('admin-edit')|| e.target.classList.contains('admin-delete'))) return;
+      showAdminProductDetail(p.id);
+    });
+    tbody.appendChild(tr);
+  });
+  Array.from(refs.adminMainList.querySelectorAll('.admin-delete')).forEach(b=> b.addEventListener('click', (e)=> {
+    e.stopPropagation(); const id = b.dataset.id; if(!confirm('Hapus produk?')) return;
+    const arr = getLS(LS.PRODUCTS) || []; const updated = arr.filter(x=>x.id!==id); setLS(LS.PRODUCTS, updated); showToast('Sukses','Produk dihapus','success'); buildAdminProducts(); renderCategories(); applyFilters();
+  }));
+  Array.from(refs.adminMainList.querySelectorAll('.admin-edit')).forEach(b=> b.addEventListener('click', (e)=> { e.stopPropagation(); openProductEditor(b.dataset.id); }));
+}
+
+function showAdminProductDetail(id){
+  const p = (getLS(LS.PRODUCTS) || []).find(x=>x.id===id);
+  if(!p){ refs.adminRight.innerHTML = '<div class="muted-small">Produk tidak ditemukan.</div>'; return; }
+  refs.adminRight.innerHTML = `<div style="display:flex;flex-direction:column;gap:8px"><div style="height:160px;border-radius:8px;overflow:hidden"><img src="${p.image}" style="width:100%;height:100%;object-fit:cover"></div><div style="font-weight:900">${escapeHtml(p.name)}</div><div class="muted-small">${escapeHtml(p.brand)} • ${escapeHtml(p.category)} • ${escapeHtml(p.ukuran)}</div><div>${escapeHtml(p.desc||'')}</div><div style="margin-top:8px;font-weight:800">${fmt(p.priceEcer)} ${p.priceGrosir?('• Grosir '+fmt(p.priceGrosir)):''}</div><div style="display:flex;gap:8px;margin-top:8px"><button class="btn admin-edit-detail" data-id="${p.id}">Edit</button><button class="btn secondary admin-delete-detail" data-id="${p.id}">Hapus</button></div></div>`;
+  refs.adminRight.querySelector('.admin-edit-detail').addEventListener('click', ()=> openProductEditor(p.id));
+  refs.adminRight.querySelector('.admin-delete-detail').addEventListener('click', ()=> { if(!confirm('Hapus produk?')) return; const arr = getLS(LS.PRODUCTS)||[]; setLS(LS.PRODUCTS, arr.filter(x=>x.id!==p.id)); showToast('Sukses','Produk dihapus','success'); buildAdminProducts(); renderCategories(); applyFilters(); refs.adminRight.innerHTML = '<div id="admin-right-inner">Pilih item...</div>'; });
+}
+
+function buildAdminBanners(){
+  const q = (refs.adminSearch.value||'').trim().toLowerCase();
+  const list = (getLS(LS.BANNERS) || []).filter(b=> !q || (b.title||'').toLowerCase().includes(q));
+  refs.adminMainList.innerHTML = list.map(b=> `<div style="display:flex;gap:10px;align-items:center;padding:8px;border-radius:8px;border:1px solid rgba(0,0,0,0.04);margin-bottom:8px"><div style="flex:0 0 140px"><img src="${b.image}" style="width:140px;height:78px;object-fit:cover;border-radius:6px"></div><div style="flex:1"><div style="font-weight:800">${escapeHtml(b.title)}</div><div class="muted-small">${escapeHtml(b.subtitle||'')}</div></div><div style="display:flex;gap:6px"><button class="btn secondary admin-edit-banner" data-id="${b.id}">Edit</button><button class="btn admin-delete-banner" data-id="${b.id}">Hapus</button></div></div>`).join('') || '<div class="muted-small">Belum ada banner.</div>';
+  Array.from(refs.adminMainList.querySelectorAll('.admin-delete-banner')).forEach(b=> b.addEventListener('click', (e)=> { e.stopPropagation(); const id=b.dataset.id; if(!confirm('Hapus banner?')) return; const arr = getLS(LS.BANNERS)||[]; setLS(LS.BANNERS, arr.filter(x=>x.id!==id)); showToast('Sukses','Banner dihapus','success'); buildAdminBanners(); buildSlider(); }));
+  Array.from(refs.adminMainList.querySelectorAll('.admin-edit-banner')).forEach(b=> b.addEventListener('click', (e)=> { e.stopPropagation(); openBannerEditor(b.dataset.id);} ));
+}
+
+refs.adminAdd.addEventListener('click', ()=> {
+  if(refs.adminMenuProducts.classList.contains('active')) openProductEditor();
+  else openBannerEditor();
+});
+refs.adminSearch.addEventListener('input', ()=> { if(refs.adminMenuProducts.classList.contains('active')) buildAdminProducts(); else buildAdminBanners(); });
+refs.adminFilterCat.addEventListener('change', ()=> buildAdminProducts());
+
+function openProductEditor(prodId){
+  const product = prodId ? (getLS(LS.PRODUCTS)||[]).find(x=>x.id===prodId) : null;
+  const modal = document.createElement('div'); modal.className='modal show';
+  modal.innerHTML = `<div class="panel" style="max-width:820px"><h3>${product?'Edit Produk':'Tambah Produk'}</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+      <input id="pe-name" placeholder="Nama produk" value="${product?escapeHtml(product.name):''}">
+      <input id="pe-brand" placeholder="Brand" value="${product?escapeHtml(product.brand):''}">
+      <select id="pe-category">${CATEGORIES.map(c=>`<option value="${escapeHtml(c.key)}" ${product&&product.category===c.key? 'selected':''}>${escapeHtml(c.key)}</option>`).join('')}</select>
+      <input id="pe-warna" placeholder="Warna" value="${product?escapeHtml(product.warna):''}">
+      <input id="pe-ukuran" placeholder="Ukuran" value="${product?escapeHtml(product.ukuran):''}">
+      <input id="pe-stock" placeholder="Stock" type="number" value="${product?product.stock:100}">
+      <input id="pe-price-ecer" placeholder="Harga ecer" type="number" value="${product?product.priceEcer:0}">
+      <input id="pe-price-grosir" placeholder="Harga grosir" type="number" value="${product?product.priceGrosir:0}">
+      <input id="pe-image" placeholder="URL gambar" value="${product?escapeHtml(product.image):''}" style="grid-column:1/3">
+      <textarea id="pe-desc" placeholder="Deskripsi" style="grid-column:1/3">${product?escapeHtml(product.desc):''}</textarea>
+    </div>
+    <div class="editor-footer">
+      <button id="pe-save" class="btn">${product?'Simpan':'Tambah'}</button>
+      <button id="pe-back" class="btn secondary">Kembali</button>
+    </div></div>`;
+  document.body.appendChild(modal);
+  modal.querySelector('#pe-back').addEventListener('click', ()=> modal.remove());
+  modal.querySelector('#pe-save').addEventListener('click', ()=> {
+    const name = modal.querySelector('#pe-name').value.trim();
+    const brand = modal.querySelector('#pe-brand').value.trim();
+    const category = modal.querySelector('#pe-category').value;
+    const warna = modal.querySelector('#pe-warna').value.trim();
+    const ukuran = modal.querySelector('#pe-ukuran').value.trim();
+    const stock = Number(modal.querySelector('#pe-stock').value) || 0;
+    const priceEcer = Number(modal.querySelector('#pe-price-ecer').value) || 0;
+    const priceGrosir = Number(modal.querySelector('#pe-price-grosir').value) || 0;
+    const image = modal.querySelector('#pe-image').value.trim() || 'https://via.placeholder.com/800';
+    const desc = modal.querySelector('#pe-desc').value.trim();
+    if(!name) return alert('Nama wajib');
+    let arr = getLS(LS.PRODUCTS) || [];
+    if(product){
+      arr = arr.map(p=> p.id===product.id ? {...p, name, brand, category, warna, ukuran, stock, priceEcer, priceGrosir, image, desc} : p);
+    } else {
+      arr.push({ id: uid('p-'), name, brand, category, warna, ukuran, stock, priceEcer, priceGrosir, image, desc });
+    }
+    setLS(LS.PRODUCTS, arr);
+    modal.remove();
+    showToast('Sukses','Perubahan produk disimpan','success');
+    renderCategories(); applyFilters(); buildAdminProducts();
+  });
+}
+
+function openBannerEditor(bannerId){
+  const banner = bannerId ? (getLS(LS.BANNERS)||[]).find(x=>x.id===bannerId) : null;
+  const modal = document.createElement('div'); modal.className='modal show';
+  modal.innerHTML = `<div class="panel" style="max-width:720px"><h3>${banner?'Edit Banner':'Tambah Banner'}</h3>
+    <div style="display:grid;gap:8px;margin-top:8px">
+      <input id="be-title" placeholder="Judul banner" value="${banner?escapeHtml(banner.title):''}">
+      <input id="be-sub" placeholder="Sub judul" value="${banner?escapeHtml(banner.subtitle||''):''}">
+      <input id="be-image" placeholder="URL gambar (16:9)" value="${banner?escapeHtml(banner.image):''}">
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button id="be-save" class="btn">${banner?'Simpan':'Tambah'}</button>
+        <button id="be-back" class="btn secondary">Kembali</button>
+      </div>
+    </div></div>`;
+  document.body.appendChild(modal);
+  modal.querySelector('#be-back').addEventListener('click', ()=> modal.remove());
+  modal.querySelector('#be-save').addEventListener('click', ()=> {
+    const title = modal.querySelector('#be-title').value.trim();
+    const sub = modal.querySelector('#be-sub').value.trim();
+    const img = modal.querySelector('#be-image').value.trim() || BANNER_IMAGE_URL;
+    if(!title) return alert('Judul wajib');
+    let arr = getLS(LS.BANNERS) || [];
+    if(banner){ arr = arr.map(b=> b.id===banner.id ? {...b, title, subtitle: sub, image: img} : b); }
+    else { arr.push({ id: uid('b-'), title, subtitle: sub, image: img }); }
+    setLS(LS.BANNERS, arr);
+    modal.remove();
+    showToast('Sukses','Banner disimpan','success');
+    buildAdminBanners(); buildSlider();
+  });
+}
+
+function buildAdminOrders(){
+  const ords = getLS(LS.ORDERS) || [];
+  refs.adminOrders.innerHTML = '';
+  if(!ords.length) { refs.adminOrders.innerHTML = '<div class="muted-small">Belum ada pesanan.</div>'; return; }
+  ords.slice().reverse().forEach(o=>{
+    const box = document.createElement('div'); box.style.padding='10px'; box.style.border='1px solid rgba(0,0,0,0.04)'; box.style.borderRadius='8px'; box.style.background='#fff';
+    box.innerHTML = `<div style="display:flex;justify-content:space-between;"><div><strong>${o.id}</strong> <span class="muted-small">(${o.status})</span></div><div style="font-weight:900">${fmt(o.total)}</div></div><div class="muted-small" style="margin-top:6px">${new Date(o.createdAt).toLocaleString()}</div><div style="margin-top:8px">${o.items.map(it=>`<div>${escapeHtml(it.name)} x${it.qty} — ${fmt(it.line)}</div>`).join('')}</div>`;
+    refs.adminOrders.appendChild(box);
+  });
+}
+
+function refreshState(){ PRODUCTS = getLS(LS.PRODUCTS) || []; BANNERS = getLS(LS.BANNERS) || []; USERS = getLS(LS.USERS) || []; ORDERS = getLS(LS.ORDERS) || []; SESSION = getLS(LS.SESSION) || null; CART = SESSION ? (getLS(LS.CART(SESSION.userId)) || []) : (getLS(LS.CART('guest')) || []); }
+function init(){
+  refreshState();
+  if(!BANNERS || !BANNERS.length){ setLS(LS.BANNERS, defaultBanners); refreshState(); }
+  buildSlider();
+  renderCategories();
+  applyFilters();
+  updateFloating();
+  updateLoginButton();
+  if(SESSION && SESSION.isAdmin) enterAdmin();
+  buildAdminOrders();
+}
+init();
+
+document.getElementById('slider').addEventListener('mouseenter', stopSlideAuto);
+document.getElementById('slider').addEventListener('mouseleave', startSlideAuto);
+
+function refreshAndRender(){ refreshState(); renderCategories(); applyFilters(); updateFloating(); }
+</script>
+</body>
+</html>
